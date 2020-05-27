@@ -19,7 +19,7 @@ cnxn = pyodbc.connect(
     'DRIVER={ODBC Driver 17 for SQL Server};SERVER=' + server + ';DATABASE=' + database + ';UID=' + username + ';PWD=' + password + ';PORT=1433')
 mscursor = cnxn.cursor()
 
-mscursor.execute("SELECT AspNetUsers.Id, AspNetUsers.FullName, AspNetUsers.Address, AspNetUsers.Email, AspNetUsers.PhoneNumber, CAST(AspNetUsers.Registered AS NVARCHAR(4000)), AspNetUsers.City_IdCity, AspNetUsers.District_IdDistrict, AspNetUsers.Village_IdVillage, AspNetUsers.Descriptions, Participants.NIK, CAST(Participants.DOB AS NVARCHAR(4000)), Participants.Sex FROM AspNetUsers JOIN Participants ON Participants.Id = AspNetUsers.Id")
+mscursor.execute("SELECT AspNetUsers.Id, AspNetUsers.FullName, AspNetUsers.Address, AspNetUsers.Email, AspNetUsers.PhoneNumber, CAST(AspNetUsers.Registered AS NVARCHAR(4000)), AspNetUsers.City_IdCity, AspNetUsers.District_IdDistrict, AspNetUsers.Village_IdVillage, AspNetUsers.Descriptions, Participants.NIK, CAST(Participants.DOB AS NVARCHAR(4000)), Participants.Sex, Participants.Contact FROM AspNetUsers JOIN Participants ON Participants.Id = AspNetUsers.Id")
 
 
 def find_existing_row(code):
@@ -61,6 +61,8 @@ for row in mscursor.fetchall():
     oldSex = row[12]
     newSex = 'M' if oldSex == 0 else 'F'
 
+    oldSymptomContact = row[13]
+
     oldCityId = row[6]
     newCityCode = None
 
@@ -81,12 +83,12 @@ for row in mscursor.fetchall():
 
     if exist is None:
         if len(row[0]) == 9:
-            sql = "INSERT INTO rdt_applicants (registration_code, nik, name, gender, birth_date, province_code, city_code, district_code, village_code, address, email, phone_number, symptoms_notes, status, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            val = (row[0], newNIK, oldName, newSex, newDOB, '32', newCityCode, newDistrictCode, newVillageCode, oldAddress, oldEmail, oldPhoneNumber, oldSymptomNotes, 'NEW', oldRegistered, '2020-05-26 12:00:00')
+            sql = "INSERT INTO rdt_applicants (registration_code, nik, name, gender, birth_date, province_code, city_code, district_code, village_code, address, email, phone_number, symptoms_notes, symptoms_interaction, status, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            val = (row[0], newNIK, oldName, newSex, newDOB, '32', newCityCode, newDistrictCode, newVillageCode, oldAddress, oldEmail, oldPhoneNumber, oldSymptomNotes, oldSymptomContact, 'NEW', oldRegistered, '2020-05-26 12:00:00')
             mycursor.execute(sql, val)
             mysqldb.commit()
     else:
-        sql = "UPDATE rdt_applicants SET nik = %s, name = %s, gender = %s, birth_date = %s, province_code = %s, city_code = %s, district_code = %s, village_code = %s, address = %s, email = %s, phone_number = %s, symptoms_notes = %s, created_at = %s, updated_at = %s WHERE registration_code = %s"
-        val = (newNIK, oldName, newSex, newDOB, '32', newCityCode, newDistrictCode, newVillageCode, oldAddress, oldEmail, oldPhoneNumber, oldSymptomNotes, oldRegistered, '2020-05-26 12:00:00', oldCode)
+        sql = "UPDATE rdt_applicants SET nik = %s, name = %s, gender = %s, birth_date = %s, province_code = %s, city_code = %s, district_code = %s, village_code = %s, address = %s, email = %s, phone_number = %s, symptoms_notes = %s, symptoms_interaction = %s, created_at = %s, updated_at = %s WHERE registration_code = %s"
+        val = (newNIK, oldName, newSex, newDOB, '32', newCityCode, newDistrictCode, newVillageCode, oldAddress, oldEmail, oldPhoneNumber, oldSymptomNotes, oldSymptomContact, oldRegistered, '2020-05-26 12:00:00', oldCode)
         mycursor.execute(sql, val)
         mysqldb.commit()
