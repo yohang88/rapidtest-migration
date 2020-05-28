@@ -40,7 +40,7 @@ def update_participant_event_id(old_id_program, inserted_id):
 
     for row in mscursor.fetchall():
         print(row)
-        sql = "UPDATE rdt_applicants SET rdt_event_id = %s WHERE registration_code = %s"
+        sql = "UPDATE rdt_applicants SET rdt_event_id = %s, status = 'APPROVED' WHERE registration_code = %s"
         val = (inserted_id, row[0])
         mycursor.execute(sql, val)
         mysqldb.commit()
